@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `aplicaciones` (
 -- Estructura de tabla para la tabla `asignatura`
 --
 
-DROP TABLE IF EXISTS `asignatura`;
+
 CREATE TABLE IF NOT EXISTS `asignatura` (
   `idAsignatura` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Llave primaria de la tabla Asignatura',
   `nombre` varchar(45) DEFAULT NULL COMMENT 'Atributo que registra el nombre de una asignatura',
@@ -722,9 +722,9 @@ ALTER TABLE `docente`
 --
 ALTER TABLE `empleado`
   ADD CONSTRAINT `FK_PERSONA_EMPLEADO` FOREIGN KEY (`Persona_idPersona`) REFERENCES `persona` (`idPersona`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `FK_TIPO_CONTRATO_EMPLEADO` FOREIGN KEY (`TipoContrato_idTipoContrato`) REFERENCES `tipocontrato` (`idTipoContrato`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `FK_TIPO_CONTRATO_EMPLEADO` FOREIGN KEY (`TipoContrato_idTipoContrato`) REFERENCES `tipocontrato` (`idTipoContrato`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `FK_DEPARTAMENTOS_EMPLEADO` FOREIGN KEY (`Departamentos_idDepartamentos`) REFERENCES `departamentos` (`idDepartamentos`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-
+  
 --
 -- Filtros para la tabla `empleado_has_privilegios`
 --
@@ -744,7 +744,7 @@ ALTER TABLE `estudiante`
 --
 ALTER TABLE `estudiante_has_carrera`
   ADD CONSTRAINT `FK_CARRERA_ESTUDIANTE` FOREIGN KEY (`Carrera_idCarrera`) REFERENCES `carrera` (`idCarrera`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `FK_ESTUDIANTE_CARRERA` FOREIGN KEY (`Estudiante_idEstudiante`) REFERENCES `estudiante` (`numeroCuenta`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `FK_ESTUDIANTE_CARRERA` FOREIGN KEY (`Estudiante_idEstudiante`) REFERENCES `estudiante` (`idEstudiante`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- Filtros para la tabla `instructorlaboratorio`
@@ -757,7 +757,7 @@ ALTER TABLE `instructorlaboratorio`
 --
 ALTER TABLE `matricula`
   ADD CONSTRAINT `FK_ESTADO_PAGO_MATRICULA` FOREIGN KEY (`EstadoPago_idEstadoPago`) REFERENCES `estadopago` (`idEstadoPago`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `FK_ESTUDIANTE_MATRICULA` FOREIGN KEY (`Estudiante_idEstudiante`) REFERENCES `estudiante` (`numeroCuenta`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `FK_ESTUDIANTE_MATRICULA` FOREIGN KEY (`Estudiante_idEstudiante`) REFERENCES `estudiante` (`idEstudiante`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `FK_OBSERVACION_NOTA_MATRICULA` FOREIGN KEY (`ObservacionNota_idObservacionNota`) REFERENCES `observacionnota` (`idObservacionNota`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `FK_SECCION_MATRICULA` FOREIGN KEY (`Seccion_idSeccion`) REFERENCES `seccion` (`idSeccion`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
