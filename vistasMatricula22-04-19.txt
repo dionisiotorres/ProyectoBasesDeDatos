@@ -1,0 +1,114 @@
+--Vistas forma03  Asignatura y Laboratorios
+
+create view forma03Asignaturas as
+select CONCAT(p.pnombre,' ',p.snombre,' ',p.papellido,' ',p.sapellido) as NombreAlumno,es.numeroCuenta,ce.NombreCentroEstudio, YEAR(CURDATE()) Anio,
+ca.Nombre as Carrera,asi.codigo as CodAsig,asi.nombre as Asignatura, se.seccion, se.HoraInicio, se.HoraFin,
+dc.dias, ed.nombre as Edificio, au.numero as Aula,  asi.creditosAcademicos,pac.descripcion as Periodo
+from Persona p
+inner join Estudiante es ON es.Persona_idPersona=p.idPersona
+inner join CentroEstudio ce ON es.CentroEstudio_idCentroEstudio=ce.idCentroEstudio
+inner join Estudiante_has_Carrera ehc ON ehc.Estudiante_idEstudiante=es.idEstudiante
+inner join Carrera ca ON ca.idCarrera=ehc.Carrera_idCarrera
+inner join Matricula ma ON ma.Estudiante_idEstudiante=es.idEstudiante
+inner join Seccion se ON se.idSeccion=ma.Seccion_idSeccion
+inner join Asignatura asi ON asi.idAsignatura=se.Asignatura_idAsignatura
+inner join DiasClase_has_Seccion dhs ON dhs.Seccion_idSeccion=se.idSeccion
+inner join DiasClase dc ON dc.idDiasClase=dhs.DiasClase_idDiasClase
+inner join Aula au ON au.idAula=se.Aula_idAula
+inner join Edificio ed ON ed.idEdificio=au.Edificio_idEdificio
+inner join PeriodoAcademico pac ON pac.idPeriodoAcademico=se.PeriodoAcademico_idPeriodoAcademico
+where pac.fechaInicio<=CURDATE() and pac.fechaFin>=CURDATE()
+and se.estado not in ('Espera,Cancelada')
+and tipoAsignacion='A'
+
+
+create view forma03Laboratorios as
+select CONCAT(p.pnombre,' ',p.snombre,' ',p.papellido,' ',p.sapellido) as NombreAlumno,es.numeroCuenta,ce.NombreCentroEstudio, YEAR(CURDATE()) Anio,
+ca.Nombre as Carrera,asi.codigo as CodAsig,asi.nombre as AsignaturaLaboratorio, se.seccion, se.HoraInicio, se.HoraFin,
+dc.dias, ed.nombre as Edificio, au.numero as Aula,pac.descripcion as Periodo
+from Persona p
+inner join Estudiante es ON es.Persona_idPersona=p.idPersona
+inner join CentroEstudio ce ON es.CentroEstudio_idCentroEstudio=ce.idCentroEstudio
+inner join Estudiante_has_Carrera ehc ON ehc.Estudiante_idEstudiante=es.idEstudiante
+inner join Carrera ca ON ca.idCarrera=ehc.Carrera_idCarrera
+inner join Matricula ma ON ma.Estudiante_idEstudiante=es.idEstudiante
+inner join Seccion se ON se.idSeccion=ma.Seccion_idSeccion
+inner join Asignatura asi ON asi.idAsignatura=se.Asignatura_idAsignatura
+inner join DiasClase_has_Seccion dhs ON dhs.Seccion_idSeccion=se.idSeccion
+inner join DiasClase dc ON dc.idDiasClase=dhs.DiasClase_idDiasClase
+inner join Aula au ON au.idAula=se.Aula_idAula
+inner join Edificio ed ON ed.idEdificio=au.Edificio_idEdificio
+inner join PeriodoAcademico pac ON pac.idPeriodoAcademico=se.PeriodoAcademico_idPeriodoAcademico
+where pac.fechaInicio<=CURDATE() and pac.fechaFin>=CURDATE()
+and se.estado not in ('Espera,Cancelado')
+and tipoAsignacion='L'
+and asi.nombre in (select asi.nombre from forma03Asignaturas)
+
+
+
+
+
+--Vista ProgramacionAcademica
+create view ProgramacionAcademica as
+select dp.descripcion as Departamento, CONCAT(asg.Codigo,' ',asg.nombre) as Asignatura,
+dc.dias,sc.seccion,sc.HoraInicio, sc.HoraFin from Departamentos dp
+inner join Asignatura asg ON asg.Departamentos_idDepartamentos=dp.idDepartamentos
+inner join Seccion sc ON sc.Asignatura_idAsignatura=asg.idAsignatura
+inner join DiasClase_has_Seccion dhs ON dhs.Seccion_idSeccion=sc.idSeccion
+inner join DiasClase dc ON dc.idDiasClase=dhs.DiasClase_idDiasClase
+inner join PeriodoAcademico pac ON pac.idPeriodoAcademico=sc.PeriodoAcademico_idPeriodoAcademico
+where pac.fechaInicio<=CURDATE() and pac.fechaFin>=CURDATE()
+
+--Aulas disponibles
+
+select ed.nombre,au.numero, sc.horaFin as HoraDisponible from Edificio ed
+inner join Aula au ON au.Edificio_idEdificio=ed.idEdificio
+inner join Seccion sc ON sc.Aula_idAula=au.idAula
+where sc.HoraFin not in (select horaInicio from seccion ss
+inner join Aula au ON au.idAula=ss.Aula_idAula
+inner join Edificio ed ON ed.idEdificio=au.Edificio_idEdificio)
+AND au.estado='A'
+
+
+
+--Secciones asiganadas por maestro 
+create view MatriculaMaestros as
+select CONCAT(p.pnombre,' ',p.snombre,' ',p.papellido,' ',p.sapellido) as NombreMaestro,YEAR(CURDATE()) Anio,
+CONCAT(asi.Codigo,' ',asi.nombre)as Asignatura, se.seccion, se.HoraInicio, se.HoraFin,
+dc.dias, ed.nombre as Edificio, au.numero as Aula,pac.descripcion as Periodo
+from Persona p
+inner join Empleado em ON em.Persona_idPersona=p.idPersona
+inner join Docente doc ON doc.Empleado_idEmpleado=em.idEmpleado
+inner join Seccion se ON se.Empleado_idEmpleado=em.idEmpleado
+inner join Matricula ma ON ma.Seccion_idSeccion=se.idSeccion
+inner join Asignatura asi ON asi.idAsignatura=se.Asignatura_idAsignatura
+inner join DiasClase_has_Seccion dhs ON dhs.Seccion_idSeccion=se.idSeccion
+inner join DiasClase dc ON dc.idDiasClase=dhs.DiasClase_idDiasClase
+inner join Aula au ON au.idAula=se.Aula_idAula
+inner join Edificio ed ON ed.idEdificio=au.Edificio_idEdificio
+inner join PeriodoAcademico pac ON pac.idPeriodoAcademico=se.PeriodoAcademico_idPeriodoAcademico
+where pac.fechaInicio<=CURDATE() and pac.fechaFin>=CURDATE()
+
+--Secciones asiganadas por Instructor
+create view MatriculaInstructores as
+select CONCAT(p.pnombre,' ',p.snombre,' ',p.papellido,' ',p.sapellido) as NombreInstructor,YEAR(CURDATE()) Anio,
+CONCAT(asi.Codigo,' ',asi.nombre)as Asignatura, se.seccion, se.HoraInicio, se.HoraFin,
+dc.dias, ed.nombre as Edificio, au.numero as Aula,pac.descripcion as Periodo
+from Persona p
+inner join Empleado em ON em.Persona_idPersona=p.idPersona
+inner join InstructorLaboratorio ins ON ins.Empleado_idEmpleado=em.idEmpleado
+inner join Seccion se ON se.Empleado_idEmpleado=em.idEmpleado
+inner join Matricula ma ON ma.Seccion_idSeccion=se.idSeccion
+inner join Asignatura asi ON asi.idAsignatura=se.Asignatura_idAsignatura
+inner join DiasClase_has_Seccion dhs ON dhs.Seccion_idSeccion=se.idSeccion
+inner join DiasClase dc ON dc.idDiasClase=dhs.DiasClase_idDiasClase
+inner join Aula au ON au.idAula=se.Aula_idAula
+inner join Edificio ed ON ed.idEdificio=au.Edificio_idEdificio
+inner join PeriodoAcademico pac ON pac.idPeriodoAcademico=se.PeriodoAcademico_idPeriodoAcademico
+where pac.fechaInicio<=CURDATE() and pac.fechaFin>=CURDATE()
+
+--Clases Cancelada
+create view canceladas as
+select s.Asignatura_idAsignatura, a.nombre,a.codigo from seccion s 
+inner join Asignatura a ON a.idAsignatura=s.Asignatura_idAsignatura
+where s.estado='c'
